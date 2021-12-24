@@ -32,11 +32,25 @@
             justify-content: center;
             align-items: center;
         }
-
-        /*.placeholder {*/
-        /*    flex: 1;*/
-        /*}*/
     </style>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Hello');
+            let btn = document.querySelector('input[type=submit]');
+            // btn.style.backgroundColor = 'yellow';
+            btn.addEventListener('click', async function (e) {
+                e.preventDefault();
+                // let username = document.querySelector('input[name=username]').value;
+                // let password = document.querySelector('input[name=password]').value;
+                let response = await fetch('/login', {
+                    method: 'POST',
+                    body: new FormData(document.querySelector('form'))
+                });
+                let response_text = await response.text();
+                console.log('response text is', response_text)
+            })
+        })
+    </script>
 </head>
 <body>
 <div class="placeholder">
