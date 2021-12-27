@@ -1,9 +1,10 @@
 import hashlib
 import hmac
 import base64
-from fastapi import FastAPI, Form, Cookie
+from fastapi import FastAPI, Form, Cookie, Body
 from fastapi.responses import Response
 from typing import Optional
+import json
 
 app = FastAPI()
 SECRET_KEY = 'ee45adfb6afdea70c0f2c42409b319c6083065a0b5e88883be7bf90f6e8d6c53'
@@ -68,13 +69,24 @@ def index_page(username: Optional[str] = Cookie(default=None)):
 
 
 @app.post('/login')
-def process_login_page(username: str = Form(...), password: str = Form(...)):
+def process_login_page(data: dict = Body(...)):
+    username = data["username"]
+    password = data["password"]
     user = users.get(username)
+    print('data is', data)
     if not user or not verify_password(username, password):
-        return Response('I don\'t now you', media_type='text/html')
+        return Response(
+            json.dumps({
+                "success": False,
+                "message": "Я вас не знаю"
+            }),
+            media_type='application/json')
     response = Response(
-        f'Login {username}, password_hash: {users[username]["password"]}',
-        media_type='text/html')
+        json.dumps({
+            'success': True,
+            'message': f'Login {username}, password_hash: {users[username]["password"]}, balane: {users[username]["balance"]}'
+        }),
+        media_type='application/json')
     username_signed = base64.b64encode(username.encode()).decode() + '.' + \
                       sign_data(username)
     response.set_cookie(key='username', value=username_signed)
